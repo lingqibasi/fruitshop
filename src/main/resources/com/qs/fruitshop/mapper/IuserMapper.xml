@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qs.fruitshop.mapper.IuserMapper">
+
+
+<!--    查询所有-->
+    <select id="selectIuser" resultType="map">
+        select * from iuser
+    </select>
+
+    <select id="queryIuer" resultType="Iuser">
+        select * from iuser
+        <where>
+            <if test="name != null and name != ''">
+                name = #{name}
+            </if>
+        </where>
+    </select>
+
+<!--    添加用户信息-->
+
+<!--    根据id查询-->
+    <select id="queryIuerById" resultType="Iuser">
+        select * from iuser where id = #{id}
+    </select>
+
+<!--    注册-->
+    <insert id="insertIuser">
+        insert into iuser (name,password)
+        values(#{name},#{password})
+    </insert>
+
+<!--    更新个人信息-->
+    <update id="updateIuser">
+        update iuser
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="sex != null and sex != ''">
+                sex = #{sex},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+<!--    条件查询-->
+    <select id="selectByCondition" resultType="map">
+        select * from iuser
+        <where>
+            <if test="name != null and name != ''">
+                name like '%${name}%'
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteById">
+        delete from iuser where id = #{id}
+    </delete>
+
+</mapper>

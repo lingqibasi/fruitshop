@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qs.fruitshop.mapper.OrderDetailMapper">
+
+    <select id="selectListByConditon" resultType="map">
+        select * from orderdetail
+        <where>
+            <if test="ordersId != null">
+                ordersId = #{ordersId}
+            </if>
+            <if test="goodsId != null and goodsId != ''">
+               and goodsId = #{goodsId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectOrderStep" resultType="map">
+        select od.num,od.goodsId ,g.* from orderdetail od
+        LEFT JOIN goods g ON od.goodsId = g.id WHERE od.ordersId  = #{id}
+    </select>
+
+    <insert id="insertDetail">
+        insert into orderdetail (goodsId,ordersId,num) values
+        <foreach collection="goodsInfo" item="goodsinfo" separator=",">
+            (#{goodsinfo.goodsId},#{goodsinfo.ordersId},#{goodsinfo.num})
+        </foreach>
+    </insert>
+
+    <delete id="delete">
+        delete from orderdetail where ordersId = #{id}
+    </delete>
+
+</mapper>

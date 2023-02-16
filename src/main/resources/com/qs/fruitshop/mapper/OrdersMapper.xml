@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qs.fruitshop.mapper.OrdersMapper">
+
+<!--    查询所有用户订单-->
+    <resultMap id="OrdersResult" type="map">
+        <id property="id" column="id" javaType="Integer"/>
+        <result property="orderSn" column="orderSn"/>
+        <result property="totalPrice" column="totalPrice"/>
+        <result property="state" column="state" javaType="Integer" />
+        <result property="addressId" column="addressId" javaType="Integer" />
+<!--        <collection property="ordersDetail" column="id" javaType="ArrayList"-->
+<!--                    select="com.qs.fruitshop.mapper.OrderDetailMapper.selectOrderStep"></collection>-->
+        <collection property="address" column="addressId" javaType="com.qs.fruitshop.pojo.Address"
+                     select="com.qs.fruitshop.mapper.AddressMapper.selectAddressById"></collection>
+    </resultMap>
+
+    <select id="list" resultMap="OrdersResult">
+        select o.* ,i.name AS username ,i.sex,i.createTime from orders o LEFT JOIN iuser i ON o.uid = i.id order by o.id desc
+    </select>
+
+
+<!--    根据用户查询订单-->
+    <resultMap id="OrdersResultById" type="map">
+        <id property="id" column="id" javaType="Integer"/>
+        <result property="orderSn" column="orderSn"/>
+        <result property="totalPrice" column="totalPrice"/>
+        <result property="state" column="state" javaType="Integer" />
+        <result property="addressId" column="addressId" javaType="Integer" />
+
+        <collection property="ordersDetail" column="id" javaType="ArrayList"
+                    select="com.qs.fruitshop.mapper.OrderDetailMapper.selectOrderStep"></collection>
+
+        <collection property="address" column="addressId" javaType="com.qs.fruitshop.pojo.Address"
+                    select="com.qs.fruitshop.mapper.AddressMapper.selectAddressById"></collection>
+    </resultMap>
+
+
+
+<!--    条件模糊查询用户订单-->
+
+    <select id="likeSelectSnAndUid" resultMap="OrdersResult">
+        select o.* ,i.name AS username ,i.sex,i.createTime from orders o LEFT JOIN iuser i ON o.uid = i.id
+        <where>
+            <if test="uid != null and uid != ''">
+                uid like '%${uid}%'
+            </if>
+            <if test="orderSn != null and orderSn != ''">
+                orderSn like '%${orderSn}%'
+            </if>
+        </where>
+        order by o.id desc
+    </select>
+
+
+    <!--    根据订单id查询详情-->
+    <select id="listById" resultMap="OrdersResultById">
+        select o.* ,i.name AS username from orders o LEFT JOIN iuser i ON o.uid = i.id WHERE o.id = #{id} order by o.id desc
+    </select>
+
+<!--    根据用户id查询订单-->
+    <select id="getByUid" resultMap="OrdersResultById">
+        select o.* ,i.name AS username from orders o LEFT JOIN iuser i ON o.uid = i.id WHERE o.uid = #{uid} order by o.id desc
+    </select>
+
+<!--    条件查询-->
+    <select id="listByCondition" resultType="map">
+        select * from orders where addressId like '%${addressId}%'
+    </select>
+
+
+
+    <insert id="addOrders"  useGeneratedKeys="true" keyProperty="id">
+        insert into orders (orderSn,totalPrice,uid,addressId) values
+            (#{orderSn},#{totalPrice},#{uid},#{addressId})
+
+    </insert>
+
+<!--    更新状态-->
+
+    <update id="updateState">
+        update orders set state = #{state} where id = #{id}
+    </update>
+
+
+    <delete id="deleteById">
+        delete from orders where id = #{id}
+    </delete>
+</mapper>

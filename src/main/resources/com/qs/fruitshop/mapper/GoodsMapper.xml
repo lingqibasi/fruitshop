@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qs.fruitshop.mapper.GoodsMapper">
+
+    <select id="list" resultType="Goods">
+        select g.*,t.name as typeName from goods g LEFT JOIN goodstype t on g.type_id = t.id
+    </select>
+
+    <select id="listByPage" resultType="Goods">
+        select g.*,t.name as typeName from goods g LEFT JOIN goodstype t on g.type_id = t.id
+    </select>
+
+    <insert id="insertGoods">
+        insert into goods (goods_no,goods_name,supplier,des,goods_img,price,type_id,stock)
+         values (#{goodsNo},#{goodsName},#{supplier},#{des},#{goodsImg},#{price},#{typeId},#{stock})
+    </insert>
+
+    <select id="queryGoodsById" resultType="Goods">
+        select g.*,t.name as typeName from goods g LEFT JOIN goodstype t on g.type_id = t.id where  g.id = #{id}
+    </select>
+
+    <select id="getGoodsByTypeName" resultType="goods">
+        select * from goods
+        <where>
+            <if test="typeid != null and typeid != ''">
+                type_id = #{typeid}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectGoodsByGoodsName" resultType="goods">
+        select * from goods where goods
+    </select>
+
+    <update id="updateGoodsById">
+        update goods
+        <set>
+            <if test="goodsNo != null and goodsNo != ''">
+                goods_no = #{goodsNo},
+            </if>
+            <if test="goodsName != null and goodsName != ''">
+                goods_name = #{goodsName},
+            </if>
+            <if test="supplier != null and supplier != ''">
+                supplier = #{supplier},
+            </if>
+            <if test="des != null and des != ''">
+                des = #{des},
+            </if>
+            <if test="goodsImg != null and goodsImg != ''">
+                goods_img = #{goodsImg},
+            </if>
+            <if test="price != null and price != ''">
+                price = #{price},
+            </if>
+            <if test="typeId != null and typeId != ''">
+                type_id = #{typeId},
+            </if>
+            <if test="stock != null and stock != ''">
+                stock = #{stock},
+            </if>
+            <if test="sell != null and sell != ''">
+                sell = #{sell}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <delete id="deleteGoodsById">
+        delete from goods where id = #{id}
+    </delete>
+
+
+    <select id="selectGoodsByNoAndName" resultType="Goods">
+        select g.*,t.name as typeName from goods g LEFT JOIN goodstype t on g.type_id = t.id
+        <where>
+            <if test="goodsNo != null and goodsNo != ''">
+                goods_no like '%${goodsNo}%'
+            </if>
+            <if test="goodsName != null and goodsName != ''">
+                and goods_name like '%${goodsName}%'
+            </if>
+        </where>
+    </select>
+
+    <select id="queryHotGoods" resultType="goods">
+        select  id,goods_no,goods_name,price,goods_img,sell FROM goods WHERE sell GROUP BY sell ORDER BY sell DESC LIMIT 5
+    </select>
+
+    <!--    批量查询-->
+    <select id="selectBatch" resultType="goods">
+        select * from goods where id in (#{goodsid});
+    </select>
+
+</mapper>

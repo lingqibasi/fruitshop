@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:p="http://www.springframework.org/schema/p"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd 
+	http://www.springframework.org/schema/jdbc 
+	http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/util 
+	http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+
+    <!--	扫描除Controller层外的所有包-->
+    <context:component-scan base-package="com.qs.fruitshop">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+<!--&lt;!&ndash;    配置视图解析器&ndash;&gt;-->
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+
+    <!-- 使用PropertyOverrideConfigurer后处理器加载数据源参数 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--<context:property-override location="classpath:jdbc.properties"/>-->
+
+    <!--配置c3p0连接池-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${dataSource.driverClass}"></property>
+        <property name="jdbcUrl" value="${dataSource.jdbcUrl}"></property>
+        <property name="user" value="${dataSource.user}"></property>
+        <property name="password" value="${dataSource.password}"></property>
+    </bean>
+
+    <!-- 配置SqlSessionFactory，SqlSessionFactoryBean是Mybatis社区开发用于整合Spring的bean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
+        <property name="dataSource" ref="dataSource"></property>
+		<property name="typeAliasesPackage" value="com.qs.fruitshop.pojo"></property>
+<!--		映射文件位置-->
+<!--		<property name="mapperLocations" value="classpath:"></property>-->
+<!--		设置全局设置  驼峰-->
+		<property name="configurationProperties" value="true"/>
+<!--        分页-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <value></value>
+                    </property>
+
+                </bean>
+            </array>
+        </property>
+
+    </bean>
+<!--	配置mapper扫描 通过上面的SqlSessionFactory 创建的sqlsession 去获取下面
+		配置路径下的mapper的代理对象
+-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.qs.fruitshop.mapper"></property>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+
+    </bean>
+
+		<!--事务管理器-->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+
+</beans>
